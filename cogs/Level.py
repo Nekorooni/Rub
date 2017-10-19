@@ -33,6 +33,8 @@ class Level:
         self.ch = self.bot.get_channel(344104210406834176)
 
     async def on_message(self, msg):
+        if not msg.guild:
+            return
         if msg.author == self.bot.user:
             return
         if msg.guild.id != 320567296726663178:
@@ -50,6 +52,8 @@ class Level:
             l += 1
             x -= needed
             await self.ch.send(f'{msg.author} leveled up to {l}!')
+            if l == 10:
+                await msg.author.add_roles(discord.utils.get(msg.guild.roles, name='Neko'))
         await self.bot.db.execute(f'UPDATE levels SET level={l}, exp={x}, ts="{msg.created_at}" WHERE user_id={msg.author.id}')
 
     @commands.command()
@@ -62,11 +66,31 @@ class Level:
 
     @commands.command()
     @commands.guild_only()
-    async def xp(self, ctx, member: discord.Member=None):
+    async def profile(self, ctx, member: discord.Member=None):
         if not member:
             member = ctx.author
         l, x = await self.bot.db.fetchone(f"SELECT `level`, `exp` FROM levels WHERE user_id={member.id}")
-        await ctx.send(f'{member} is Lv{l} with {x}/{exp_needed(l)}')
+        data = {
+            "thumbnail": {
+              "url": f"{member.avatar_url}"
+            },
+            "author": {
+              "name": f"{member}"
+            },
+            "fields": [
+              {
+                "name": "Level",
+                "value": f"{l}",
+                "inline": True
+              },
+              {
+                "name": "Experience",
+                "value": f"{x} / {exp_needed(l)}",
+                "inline": True
+              }
+            ]
+          }
+        await ctx.send(embed=discord.Embed().from_data(data))
 
     @commands.command(hidden=True)
     @commands.is_owner()
