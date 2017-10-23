@@ -23,7 +23,7 @@ class DB:
         async with self.pool.acquire() as conn:
             async with conn.cursor() as cur:
                 r = await cur.execute(qry)
-                return r
+                return r, cur.lastrowid
 
     async def fetch(self, qry):
         async with self.pool.acquire() as conn:
