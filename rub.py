@@ -15,7 +15,7 @@ desc = 'A bot for rubs'
 class Rub(commands.Bot):
 
     def __init__(self):
-        super().__init__(command_prefix=['!', '`', '.'], description=desc, pm_help=None, help_attrs=dict(hidden=True),
+        super().__init__(command_prefix=config.prefix, description=desc, pm_help=None, help_attrs=dict(hidden=True),
                          formatter=RubHelpFormatter())
         self.load_cogs()
         self.add_command(self.source)
