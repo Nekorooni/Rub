@@ -31,7 +31,7 @@ class RubHelpFormatter(HelpFormatter):
 
         if description:
             # <description> portion
-            self._paginator.add_line(f'[ {description} ][-]', empty=True)
+            self._paginator.add_line(f'[ {description} ][-!`.]', empty=True)
 
         if isinstance(self.command, Command):
             # <signature portion>
