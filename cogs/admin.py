@@ -40,7 +40,7 @@ class Admin:
     async def load(self, ctx, *, module):
         """Loads a module."""
         try:
-            self.bot.load_extension(module)
+            self.bot.load_extension(module if module.startswith('cogs.') else f'cogs.{module}')
         except Exception as e:
             await ctx.send(f'```py\n{traceback.format_exc()}\n```')
         else:
@@ -50,7 +50,7 @@ class Admin:
     async def unload(self, ctx, *, module):
         """Unloads a module."""
         try:
-            self.bot.unload_extension(module)
+            self.bot.unload_extension(module if module.startswith('cogs.') else f'cogs.{module}')
         except Exception as e:
             await ctx.send(f'```py\n{traceback.format_exc()}\n```')
         else:
@@ -60,8 +60,8 @@ class Admin:
     async def _reload(self, ctx, *, module):
         """Reloads a module."""
         try:
-            self.bot.unload_extension(module)
-            self.bot.load_extension(module)
+            self.bot.unload_extension(module if module.startswith('cogs.') else f'cogs.{module}')
+            self.bot.load_extension(module if module.startswith('cogs.') else f'cogs.{module}')
         except Exception as e:
             await ctx.send(f'```py\n{traceback.format_exc()}\n```')
         else:
