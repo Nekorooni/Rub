@@ -30,7 +30,10 @@ class Inventory:
     async def inventory(self, ctx):
         items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
                                        f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
-        await ctx.send('\n'.join([f'{name}{" "+data if data else ""} - {short}' for name, short, data in items]))
+        if items:
+            await ctx.send('\n'.join([f'{name}{" "+data if data else ""} - {short}' for name, short, data in items]))
+        else:
+            await ctx.send("You don't have anything.")
 
     @commands.command()
     @needs_profile()
