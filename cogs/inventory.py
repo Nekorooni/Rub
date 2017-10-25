@@ -36,6 +36,21 @@ class Inventory:
             await ctx.send("You don't have anything.")
 
     @commands.command()
+    async def spawnitem(self, ctx, member:discord.Member, *, item_name):
+        r,i = await ctx.bot.db.execute(f'INSERT INTO inventory (profile_id, item_id) '
+                                       f'SELECT p.id, i.id '
+                                       f'FROM profiles p '
+                                       f'INNER JOIN items i '
+                                       f'WHERE p.user_id={member.id} '
+                                       f'AND i.name="{item_name}"')
+        if r:
+            await ctx.send('Dun!')
+        else:
+            await ctx.send('Something bad happened')
+
+
+
+    @commands.command()
     @needs_profile()
     @has_item(id=1)
     async def use(self, ctx):
