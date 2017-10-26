@@ -38,6 +38,14 @@ class Moderation:
         except:
             await ctx.message.add_reaction('tsumikuBlank:364178887917436933')
 
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def purge(self, ctx, *params):
+        data={}
+        for k in iter(params):
+            data[k] = discord.Object(id=next(k))
+        await ctx.channel.purge(limit=100, **data)
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
