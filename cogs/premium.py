@@ -17,9 +17,9 @@ class Premium:
     @needs_profile()
     async def color(self, ctx, color: discord.Role):
         c = get_color_role(ctx.author)
-        if ctx.bot.db.fetchone(f'SELECT id FROM inventory '
-                               f'WHERE profile_id="{ctx.profile.pid}" '
-                               f'AND item_id="10" AND data="{color.name}"'):
+        if await ctx.bot.db.fetchone(f'SELECT id FROM inventory '
+                                     f'WHERE profile_id="{ctx.profile.pid}" '
+                                     f'AND item_id="10" AND data="{color.name}"'):
             await ctx.author.add_roles(color)
             await ctx.author.remove_roles(c)
             await ctx.send("There you go!")
