@@ -1,21 +1,6 @@
-import heapq
-from collections import Counter
-
-import datetime
-
-import collections
-from operator import itemgetter
-
 from discord.ext import commands
 
 import discord
-import random
-
-
-def get_color_role(member):
-    for role in member.roles:
-        if role.color == member.color:
-            return role
 
 
 class Helpful:
@@ -31,31 +16,37 @@ class Helpful:
             user = ctx.author
         await ctx.send(user.avatar_url)
 
-    @commands.command()
-    async def ping(self, ctx):
-        t = datetime.datetime.utcnow() - ctx.message.created_at
-        await ctx.send(f'pong :v *{t.total_seconds()}*')
+    @commands.group()
+    async def cleanup(self, ctx):
+        if not ctx.invoked_subcomand:
+            return False
 
-    @commands.command()
-    async def color(self, ctx, color: discord.Colour):
-        if ctx.guild.id != 352672918473277440:
-            return
-        role = await ctx.guild.create_role(name=str(color), colour=color)
-        await ctx.author.remove_roles(get_color_role(ctx.author))
-        await ctx.author.add_roles(role)
-        await ctx.guild.me.add_roles(role)
-        await ctx.guild.me.remove_roles(get_color_role(ctx.guild.me))
-        await ctx.send(str(color))
+    @cleanup.command()
+    async def images(self, ctx, amount: int = 10):
+        out = ''
 
-    @commands.command()
-    async def get_active(self, ctx, limit=100):
-        members = []
-        channel = self.bot.get_channel(320567296726663178)
-        async for m in channel.history(limit=limit):
-            if m.author not in members:
-                members.append(m.author)
-        random.shuffle(members)
-        await ctx.send('\n'.join([f"{i} - {x.name}" for i, x in enumerate(members)]))
+        def pred(message):
+            if message.embeds:
+                data = message.embeds[0]
+                if data.type == 'image':
+                    return False
+
+            if message.attachments:
+                return False
+            return True
+
+        messages = await ctx.channel.history(limit=amount).filter(pred).flatten()
+
+        for m in messages:
+            out += f"{m.author}: {m.content.replace('`', '')}\n"
+        out = f'Delete? `y/n`:```\n{out[:1970]}\n```'
+        bm = await ctx.send(out)
+        r = await self.bot.wait_for('message', check=lambda m: 'y' in m.content.lower() or 'n' in m.content.lower())
+        if 'y' in r.content:
+            await ctx.channel.delete_messages(messages)
+            await (await ctx.send('Dun!')).edit(delete_after=3)
+        await ctx.delete(bm)
+
 
 def setup(bot):
     bot.add_cog(Helpful(bot))
