@@ -46,7 +46,7 @@ class Helpful:
                 return False
             if 'y' in msg.content.lower() or 'n' in msg.content.lower():
                 return True
-        r = await self.bot.wait_for('message', check=check)
+        r = await self.bot.wait_for('message', check=check, timeout=10)
         if 'y' in r.content:
             messages += r
             await ctx.channel.delete_messages(messages)
