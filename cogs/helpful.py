@@ -48,7 +48,7 @@ class Helpful:
                 return True
         r = await self.bot.wait_for('message', check=check, timeout=10)
         if 'y' in r.content:
-            messages += r
+            messages += [r]
             await ctx.channel.delete_messages(messages)
             await (await ctx.send('Dun!')).edit(delete_after=3)
         await bm.delete()
