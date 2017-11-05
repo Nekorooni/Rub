@@ -17,11 +17,13 @@ class Helpful:
             user = ctx.author
         await ctx.send(user.avatar_url)
 
+    @commands.has_permissions(manage_messages=True)
     @commands.group()
     async def cleanup(self, ctx):
         if not ctx.invoked_subcommand:
             return False
 
+    @commands.has_permissions(manage_messages=True)
     @cleanup.command()
     async def images(self, ctx, amount: int = 10):
         def no_image(message):
