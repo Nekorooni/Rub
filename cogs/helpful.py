@@ -18,7 +18,7 @@ class Helpful:
 
     @commands.group()
     async def cleanup(self, ctx):
-        if not ctx.invoked_subcomand:
+        if not ctx.invoked_subcommand:
             return False
 
     @cleanup.command()
@@ -41,7 +41,7 @@ class Helpful:
             out += f"{m.author}: {m.content.replace('`', '')}\n"
         out = f'Delete? `y/n`:```\n{out[:1970]}\n```'
         bm = await ctx.send(out)
-        r = await self.bot.wait_for('message', check=lambda m: 'y' in m.content.lower() or 'n' in m.content.lower())
+        r = await self.bot.wait_for('message', check=lambda m: 'y' in m.content.lower() or 'n' in m.content.lower() and m.author==ctx.author)
         if 'y' in r.content:
             await ctx.channel.delete_messages(messages)
             await (await ctx.send('Dun!')).edit(delete_after=3)
