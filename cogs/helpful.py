@@ -41,8 +41,14 @@ class Helpful:
             out += f"{m.author}: {m.content.replace('`', '')}\n"
         out = f'Delete? `y/n`:```\n{out[:1970]}\n```'
         bm = await ctx.send(out)
-        r = await self.bot.wait_for('message', check=lambda m: 'y' in m.content.lower() or 'n' in m.content.lower() and m.author==ctx.author)
+        def check(msg):
+            if msg.author != ctx.author:
+                return False
+            if 'y' in msg.content.lower() or 'n' in msg.content.lower():
+                return True
+        r = await self.bot.wait_for('message', check=check)
         if 'y' in r.content:
+            messages += r
             await ctx.channel.delete_messages(messages)
             await (await ctx.send('Dun!')).edit(delete_after=3)
         await ctx.delete(bm)
