@@ -1,3 +1,4 @@
+import asyncio
 from discord.ext import commands
 
 import discord
@@ -23,9 +24,7 @@ class Helpful:
 
     @cleanup.command()
     async def images(self, ctx, amount: int = 10):
-        out = ''
-
-        def pred(message):
+        def no_image(message):
             if message.embeds:
                 data = message.embeds[0]
                 if data.type == 'image':
@@ -35,10 +34,10 @@ class Helpful:
                 return False
             return True
 
-        messages = await ctx.channel.history(limit=amount).filter(pred).flatten()
-
+        messages = await ctx.channel.history(limit=amount).filter(no_image).flatten()
+        out = ''
         for m in messages:
-            out += f"{m.author}: {m.content.replace('`', '')}\n"
+            out += f"{m.author}: {m.content.replace('`', '')[:40]}..\n"
         out = f'Delete? `y/n`:```\n{out[:1970]}\n```'
         bm = await ctx.send(out)
         def check(msg):
@@ -46,12 +45,17 @@ class Helpful:
                 return False
             if 'y' in msg.content.lower() or 'n' in msg.content.lower():
                 return True
-        r = await self.bot.wait_for('message', check=check, timeout=10)
-        if 'y' in r.content:
-            messages += [r]
-            await ctx.channel.delete_messages(messages)
-            await (await ctx.send('Dun!')).edit(delete_after=3)
-        await bm.delete()
+        try:
+            r = await self.bot.wait_for('message', check=check, timeout=25)
+            await bm.delete()
+            if 'y' in r.content:
+                messages += [r]
+                await ctx.channel.delete_messages(messages)
+                await (await ctx.send('Dun!')).edit(delete_after=5)
+        except asyncio.TimeoutError:
+            await bm.delete()
+            await ctx.message.delete()
+
 
 
 def setup(bot):
