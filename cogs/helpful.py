@@ -25,7 +25,7 @@ class Helpful:
 
     @commands.has_permissions(manage_messages=True)
     @cleanup.command()
-    async def images(self, ctx, amount: int = 10):
+    async def images(self, ctx, amount: int = 50):
         def no_image(message):
             if message.embeds:
                 data = message.embeds[0]
