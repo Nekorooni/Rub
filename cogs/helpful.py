@@ -51,7 +51,7 @@ class Helpful:
             messages += r
             await ctx.channel.delete_messages(messages)
             await (await ctx.send('Dun!')).edit(delete_after=3)
-        await ctx.delete(bm)
+        await bm.delete()
 
 
 def setup(bot):
