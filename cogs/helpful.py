@@ -31,6 +31,8 @@ class Helpful:
                 data = message.embeds[0]
                 if data.type == 'image':
                     return False
+                if data.type == 'rich':
+                    return False
 
             if message.attachments:
                 return False
