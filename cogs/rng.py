@@ -75,7 +75,7 @@ class Rng:
             n, m = 1, dice
         for i in range(int(n)):
             output.append(str(random.randrange(1, int(m)+1)))
-        await ctx.send('```' + '\n'.join(output) + '```')
+        await ctx.send('```\n' + '\n'.join(output) + '```')
 
 def setup(bot):
     bot.add_cog(Rng(bot))
