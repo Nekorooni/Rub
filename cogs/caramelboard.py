@@ -46,6 +46,8 @@ class Caramelboard:
         n = 0
         u = []
         for r in msg.reactions:
+            if not r.custom_emoji:
+                continue
             if 'caramel' in r.emoji.name:
                 async for user in r.users():
                     if user.id not in u:
