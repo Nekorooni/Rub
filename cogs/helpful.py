@@ -19,12 +19,24 @@ class Helpful:
 
     @commands.has_permissions(manage_messages=True)
     @commands.group()
-    async def cleanup(self, ctx):
+    async def clear(self, ctx):
         if not ctx.invoked_subcommand:
             return False
 
     @commands.has_permissions(manage_messages=True)
-    @cleanup.command()
+    @clear.command()
+    async def all(self, ctx, amount: int = 50):
+        messages = await ctx.channel.history(limit=amount).flatten()
+        await ctx.channel.delete_messages(messages)
+
+    @commands.has_permissions(manage_messages=True)
+    @clear.command()
+    async def nonbot(self, ctx, amount: int = 50):
+        messages = await ctx.channel.history(limit=amount).filter(lambda m: not m.author.bot).flatten()
+        await ctx.channel.delete_messages(messages)
+
+    @commands.has_permissions(manage_messages=True)
+    @clear.command()
     async def images(self, ctx, amount: int = 50):
         def no_image(message):
             if message.embeds:
