@@ -3,8 +3,8 @@
 rub-env/*
 data/*
 *.pyc
+*.log
 
-conf.json
 config.py
 
 ffmpeg.exe
