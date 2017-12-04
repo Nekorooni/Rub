@@ -1,10 +1,26 @@
 import datetime
 
+import asyncio
 import discord
 from discord.ext import commands
 
 GUILD_ID = 320567296726663178
 LOG_CHANNEL = 383059844803985408
+
+
+async def poll_audit_log(guild, action, after, *, poll=1, **kwargs):
+    print(f"Polling for {action}")
+    print(f"After: {after}")
+    for i in range(poll):
+        print(f"Poll {i+1}")
+        log = await guild.audit_logs(action=action, after=after).get(**kwargs)
+        if log:
+            print(f"Found audit log")
+            print(log)
+            return log
+        await asyncio.sleep(1)
+    print(f"Didn't find anything")
+    return None
 
 
 class Stafflog:
@@ -18,34 +34,35 @@ class Stafflog:
             e.set_footer(text=footer)
         await self.bot.get_channel(LOG_CHANNEL).send(embed=e)
 
-    async def on_member_join(self, member):
-        if member.guild.id != GUILD_ID:
-            return
-        creation = datetime.datetime.utcnow()-member.created_at
-        days, seconds = creation.days, creation.seconds
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        e = discord.Embed(title=f"{member} joined",
-                          description=f'Created {days} days, {hours} hours, {minutes} minutes ago', color=0x6cdb81)
-        e.set_footer(text=f'{member.id}')
-        e.set_thumbnail(url=member.avatar_url_as(size=64))
-        e.timestamp = datetime.datetime.utcnow()
-        await self.bot.get_channel(LOG_CHANNEL).send(embed=e)
+    async def on_member_ban(self, guild, member):
+        print('On member ban')
+        print(datetime.datetime.utcnow())
 
     async def on_member_remove(self, member):
+        print('On member remove')
+        print(datetime.datetime.utcnow())
         if member.guild.id != GUILD_ID:
             return
-        await self.post_event(title=f"{member} ({member.id}) left", color=0xdb6c79)
+        time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        l = await poll_audit_log(member.guild, discord.AuditLogAction.kick, time, poll=2, target__id=member.id)
+        if l:
+            return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} kicked for {l.reason}')
+        l = await poll_audit_log(member.guild, discord.AuditLogAction.ban, time, target__id=member.id)
+        if l:
+            u = await poll_audit_log(member.guild, discord.AuditLogAction.unban, time, target__id=member.id)
+            if u:
+                return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} softbanned for {l.reason}')
+            else:
+                return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} banned for {l.reason}')
+        return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} left')
 
-    async def on_member_ban(self, guild, user):
+    async def on_member_unban(self, guild, member):
         if guild.id != GUILD_ID:
             return
-        await self.post_event(title=f"{user} (*{user.id}*) banned", color=0xd23838)
-
-    async def on_member_kick(self, guild, user):
-        if guild.id != GUILD_ID:
-            return
-        await self.post_event(title=f"{user} ({user.id}) kicked", color=0xd28838)
+        time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        l = await poll_audit_log(guild, discord.AuditLogAction.unban, time, poll=2, target__id=member.id)
+        if l:
+            return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} unbanned for {l.reason}')
 
 
 def setup(bot):
