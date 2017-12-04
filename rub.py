@@ -35,7 +35,6 @@ class Rub(commands.Bot):
             self.uptime = datetime.datetime.utcnow()
         print(f'Ready: {self.user} (ID: {self.user.id})')
         print(f'Discord {discord.__version__}')
-        await self.db.connect()
 
     async def on_resumed(self):
         print('Resumed..')
