@@ -61,6 +61,16 @@ class Manage:
             await self.bot.change_presence(game=discord.Game(name=title or '\u200b', url=url, type=1))
         # TODO: Maybe a better way to handle no title
 
+    @manage.command(hidden=True, aliases=['listeningto'])
+    async def listening(self, ctx, *, status):
+        """Set Rub's 'listening to' status."""
+        await self.bot.change_presence(game=discord.Game(name=status, type=2))
+
+    @manage.command(hidden=True)
+    async def watching(self, ctx, *, status):
+        """Set Rub's 'watching' status."""
+        await self.bot.change_presence(game=discord.Game(name=status, type=3))
+
 
 def setup(bot):
     bot.add_cog(Manage(bot))
