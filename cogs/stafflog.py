@@ -28,10 +28,8 @@ class Stafflog:
     def __init__(self, bot):
         self.bot = bot
 
-    async def post_event(self, *, title=None, desc=None, footer=None, color=discord.Colour.default()):
-        e = discord.Embed(title=title, description=desc, color=color)
-        if footer:
-            e.set_footer(text=footer)
+    async def post_event(self, msg=None, color=discord.Colour.default()):
+        e = discord.Embed(title=msg, color=color)
         await self.bot.get_channel(LOG_CHANNEL).send(embed=e)
 
     async def on_member_join(self, member):
@@ -47,8 +45,16 @@ class Stafflog:
         await self.bot.get_channel(LOG_CHANNEL).send(embed=e)
 
     async def on_member_ban(self, guild, member):
-        print('On member ban')
-        print(datetime.datetime.utcnow())
+        if guild.id != GUILD_ID:
+            return
+        time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        l = await poll_audit_log(guild, discord.AuditLogAction.ban, time, poll=3, target__id=member.id)
+        if l:
+            u = await poll_audit_log(guild, discord.AuditLogAction.unban, time, target__id=member.id)
+            if u:
+                return await self.post_event(f'{member} softbanned for {l.reason}', discord.Colour.dark_orange())
+            else:
+                return await self.post_event(f'{member} banned for {l.reason}', discord.Colour.dark_red())
 
     async def on_member_remove(self, member):
         print('On member remove')
@@ -58,15 +64,10 @@ class Stafflog:
         time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
         l = await poll_audit_log(member.guild, discord.AuditLogAction.kick, time, poll=2, target__id=member.id)
         if l:
-            return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} kicked for {l.reason}')
-        l = await poll_audit_log(member.guild, discord.AuditLogAction.ban, time, target__id=member.id)
-        if l:
-            u = await poll_audit_log(member.guild, discord.AuditLogAction.unban, time, target__id=member.id)
-            if u:
-                return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} softbanned for {l.reason}')
-            else:
-                return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} banned for {l.reason}')
-        return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} left')
+            return await self.post_event(f'{member} kicked for {l.reason}', discord.Colour.dark_gold())
+        l = await poll_audit_log(member.guild, discord.AuditLogAction.ban, time, poll=3, target__id=member.id)
+        if not l:
+            return await self.post_event(f'{member} left', discord.Colour.dark_orange())
 
     async def on_member_unban(self, guild, member):
         if guild.id != GUILD_ID:
@@ -74,7 +75,7 @@ class Stafflog:
         time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
         l = await poll_audit_log(guild, discord.AuditLogAction.unban, time, poll=2, target__id=member.id)
         if l:
-            return await self.bot.get_channel(LOG_CHANNEL).send(f'{member} unbanned for {l.reason}')
+            return await self.post_event(f'{member} unbanned for {l.reason}', discord.Colour.dark_purple())
 
 
 def setup(bot):
