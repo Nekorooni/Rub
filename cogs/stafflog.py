@@ -34,10 +34,10 @@ class Stafflog:
 
     async def on_member_join(self, member):
         now = datetime.datetime.utcnow()
-        days, r = divmod((now-member.created_at).total_seconds(), 86400)
+        days, r = divmod(int((now-member.created_at).total_seconds()), 86400)
         h, r = divmod(r, 3600)
         m, s = divmod(r, 60)
-        e = discord.Embed(title=f'{member} joined', description=f'Made {days} days {h:02d}:{m:02d}:{s:02d} ago',
+        e = discord.Embed(title=f'{member} joined', description=f'Made {days} days {h:02}:{m:02}:{s:02} ago',
                           color=discord.Colour.green())
         e.set_thumbnail(url=member.avatar_url)
         e.set_footer(text=member.id)
