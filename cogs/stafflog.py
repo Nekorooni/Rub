@@ -50,7 +50,7 @@ class Stafflog:
         time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
         l = await poll_audit_log(guild, discord.AuditLogAction.ban, time, poll=3, target__id=member.id)
         if l:
-            u = await poll_audit_log(guild, discord.AuditLogAction.unban, time, target__id=member.id)
+            u = await poll_audit_log(guild, discord.AuditLogAction.unban, time, poll=3, target__id=member.id)
             if u:
                 return await self.post_event(f'{member} softbanned for {l.reason}', discord.Colour.dark_orange())
             else:
@@ -73,6 +73,8 @@ class Stafflog:
         if guild.id != GUILD_ID:
             return
         time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        if await poll_audit_log(guild, discord.AuditLogAction.ban, time, poll=3, target__id=member.id):
+            return
         l = await poll_audit_log(guild, discord.AuditLogAction.unban, time, poll=2, target__id=member.id)
         if l:
             return await self.post_event(f'{member} unbanned for {l.reason}', discord.Colour.dark_purple())
