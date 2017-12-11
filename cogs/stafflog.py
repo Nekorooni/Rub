@@ -9,17 +9,11 @@ LOG_CHANNEL = 383059844803985408
 
 
 async def poll_audit_log(guild, action, after, *, poll=1, **kwargs):
-    print(f"Polling for {action}")
-    print(f"After: {after}")
     for i in range(poll):
-        print(f"Poll {i+1}")
         log = await guild.audit_logs(action=action, after=after).get(**kwargs)
         if log:
-            print(f"Found audit log")
-            print(log)
             return log
         await asyncio.sleep(1)
-    print(f"Didn't find anything")
     return None
 
 
