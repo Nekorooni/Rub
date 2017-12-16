@@ -31,16 +31,20 @@ class Reminders:
                                               check=lambda m: m.author == msg.author and m.channel == msg.channel)
                 time = get_date(msg.content)
             if time:
-                await self.timers.create_timer('reminder', time, [msg.channel.id, reminder])
+                await self.timers.create_timer('reminder', time, [msg.author.id, msg.channel.id, reminder])
                 await msg.channel.send(f'I\'ll remind you then!')
             else:
                 await msg.channel.send(f"Idk when you want me to remind you")
 
-    async def on_reminder_event(self, destination, msg):
-        channel = self.bot.get_channel(destination)
+    async def on_reminder_event(self, author_id, destination_id, msg):
+        author = self.bot.get_user(author_id)
+        if author is None:
+            return
+        channel = self.bot.get_channel(destination_id)
         if channel is None:
+        
             # Check if it's a DM channel
-            author = self.bot.get_user(destination)
+            author = self.bot.get_user(author_id)
             try:
                 channel = await author.dm_channel()
             except:
