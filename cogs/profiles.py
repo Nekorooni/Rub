@@ -38,7 +38,6 @@ class PartialProfile:
 
     async def save(self, db):
         s = ', '.join([f'{s}={getattr(self,s,None)}' for s in self.__slots__[1:] if getattr(self, s, None) is not None])
-        print(f"UPDATE profiles SET {s} WHERE id={self.pid}")
         await db.execute(f"UPDATE profiles SET {s} WHERE id={self.pid}")
 
 
