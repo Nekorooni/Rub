@@ -42,7 +42,6 @@ class Reminders:
             return
         channel = self.bot.get_channel(destination_id)
         if channel is None:
-        
             # Check if it's a DM channel
             author = self.bot.get_user(author_id)
             try:
@@ -50,7 +49,7 @@ class Reminders:
             except:
                 return
 
-        await channel.send(f'{msg}')
+        await channel.send(f'{author.mention}\n{msg}')
 
 def setup(bot):
     bot.add_cog(Reminders(bot))
