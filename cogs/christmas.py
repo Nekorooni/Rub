@@ -22,7 +22,7 @@ class Christmas:
     async def lotto(self, ctx):
         """Enter the christmas event for only $5.99"""
         if ctx.author.id in self.entries:
-            return await ctx.send('You already for the current draw.')
+            return await ctx.send('You already entered.')
         if ctx.profile.coins >= 100:
             ctx.profile.coins -= 100
             await ctx.profile.save(self.bot.db)
@@ -32,6 +32,12 @@ class Christmas:
             await ch.send(f'{ctx.author.mention}: <{ctx.author.id}> entered')
         else:
             await ctx.send('You don\'t have 100 coins.')
+
+    @commands.command()
+    @commands.has_any_role('Admin')
+    async def forcelotto(self, ctx, member:discord.Member):
+        self.entries += [member.id]
+        await ctx.send('dun')
 
     @commands.command()
     @commands.has_any_role('Admin')
