@@ -6,6 +6,11 @@ import aiohttp
 from discord.ext import commands
 import discord
 
+EXCLUDED_CHANNELS = [
+    362669211966767104,  # Ask-rub
+    371046668856197131,  # Snackbox
+    370941450361372672,  # Yui-Roo
+]
 
 def exp_needed(level):
     return round(20 * level ** 1.05)
@@ -68,13 +73,16 @@ class Profiles:
             return
         if msg.guild.id != 320567296726663178:
             return
+        if msg.channel.id in EXCLUDED_CHANNELS:
+            return
         if msg.author.bot:
             return
-        profile = await self.get_profile(msg.author.id, ('level', 'experience'))
+        profile = await self.get_profile(msg.author.id, ('level', 'experience', 'coins'))
         d = abs(msg.created_at - self.cooldowns.get(profile.pid, datetime.datetime(2000, 1, 1)))
         if d < datetime.timedelta(seconds=20):
             return
         profile.experience += 10
+        profile.coins += 1
         needed = exp_needed(profile.level)
         if profile.experience >= needed:
             profile.level += 1
