@@ -26,7 +26,7 @@ class Christmas:
         if ctx.invoked_subcommand is not None:
             return
         if await self.joined_lotto(ctx.author.id):
-            return await ctx.send('You already entered.')
+            return await ctx.send(f'{ctx.author.mention} You already entered.')
         if ctx.profile.coins >= 100:
             ctx.profile.coins -= 100
             await ctx.profile.save(self.bot.db)
