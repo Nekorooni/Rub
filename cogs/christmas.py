@@ -31,9 +31,9 @@ class Christmas:
             ctx.profile.coins -= 100
             await ctx.profile.save(self.bot.db)
             await self.bot.db.execute(f"INSERT INTO lotto_entries (user_id) VALUES ({ctx.author.id})")
-            await ctx.send('You bought a ticket for 100 coins')
+            await ctx.send(f'{ctx.author.mention} You bought a ticket for 100 coins')
         else:
-            await ctx.send('You don\'t have 100 coins.')
+            await ctx.send(f"{ctx.author.mention} You don't have 100 coins.")
 
     @lotto.command(name='entries')
     @commands.has_any_role('Admin')
