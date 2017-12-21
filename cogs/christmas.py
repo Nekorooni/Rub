@@ -14,34 +14,41 @@ class Christmas:
 
     def __init__(self, bot):
         self.bot = bot
-        self.entries = []
 
-    @commands.command()
+    async def joined_lotto(self, user_id):
+        return await self.bot.db.fetchone(f"SELECT user_id FROM lotto_entries WHERE user_id={user_id}") is not None
+
+    @commands.group()
     @commands.guild_only()
     @needs_profile(['coins'])
     async def lotto(self, ctx):
         """Enter the christmas event for only $5.99"""
-        if ctx.author.id in self.entries:
+        if ctx.invoked_subcommand is not None:
+            return
+        if await self.joined_lotto(ctx.author.id):
             return await ctx.send('You already entered.')
         if ctx.profile.coins >= 100:
             ctx.profile.coins -= 100
             await ctx.profile.save(self.bot.db)
-            self.entries += [ctx.author.id]
+            await self.bot.db.execute(f"INSERT INTO lotto_entries (user_id) VALUES ({ctx.author.id})")
             await ctx.send('You bought a ticket for 100 coins')
-            ch = ctx.guild.get_channel(ENTRIES_CHANNEL)
-            await ch.send(f'{ctx.author.mention}: <{ctx.author.id}> entered')
         else:
             await ctx.send('You don\'t have 100 coins.')
 
-    @commands.command()
+    @lotto.command(name='entries')
     @commands.has_any_role('Admin')
-    async def forcelotto(self, ctx, member:discord.Member):
-        self.entries += [member.id]
-        await ctx.send('dun')
+    async def lotto_entries(self, ctx):
+        await ctx.send('\n'.join([str(ctx.guild.get_member(x[0])) or "User left" for x in await self.bot.db.fetch("SELECT user_id FROM lotto_entries")]))
 
-    @commands.command()
+    @lotto.command()
+    @commands.has_any_role('Admin')
+    async def clear(self, ctx):
+        await ctx.send(await self.bot.db.execute('TRUNCATE lotto_entries'))
+
+    @lotto.command()
     @commands.has_any_role('Admin')
     async def countdown(self, ctx, old_message=None):
+        await ctx.message.delete()
         em = discord.Embed(title="Time till next draw", description="--:--:--")
         if old_message:
             msg = await ctx.channel.get_message(old_message)
