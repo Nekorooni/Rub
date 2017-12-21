@@ -110,15 +110,6 @@ class Profiles:
         else:
             em = discord.Embed(description=f'You have {ctx.profile.coins} coins')
         await ctx.send(embed=em)
-
-    @commands.command()
-    @needs_profile(['coins'])
-    async def freecoins(self, ctx, member: discord.Member = None):
-        if member:
-            ctx.profile = await self.get_profile(member.id, ['coins'])
-        ctx.profile.coins += 10
-        await ctx.profile.save(ctx.bot.db)
-        await ctx.send('yush')
         
     @commands.command()
     @needs_profile()
