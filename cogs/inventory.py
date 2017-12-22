@@ -36,6 +36,7 @@ class Inventory:
             await ctx.send("You don't have anything.")
 
     @commands.command()
+    @commands.has_role('Admin')
     async def spawnitem(self, ctx, member:discord.Member, *, item_name):
         r,i = await ctx.bot.db.execute(f'INSERT INTO inventory (profile_id, item_id) '
                                        f'SELECT p.id, i.id '
