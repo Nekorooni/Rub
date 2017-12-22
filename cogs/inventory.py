@@ -31,7 +31,7 @@ class Inventory:
         items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
                                        f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
         if items:
-            await ctx.send('\n'.join([f'{name}{" "+data if data else ""} - {short}' for name, short, data in items]))
+            await ctx.send('\n'.join([f'{data+" " if data else ""}{name} - {short}' for name, short, data in items]))
         else:
             await ctx.send("You don't have anything.")
 
