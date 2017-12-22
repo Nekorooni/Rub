@@ -113,7 +113,7 @@ class Profiles:
         
     @commands.command()
     @needs_profile()
-    async def inv(self, ctx):
+    async def inv2(self, ctx):
         items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
                                        f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid} '
                                        f'LIMIT 10')
