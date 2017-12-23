@@ -52,7 +52,7 @@ class Christmas:
         for i in range(len(entries)):
             if entries[0] in winners:
                 entries.rotate(-1)
-                print(f'{entries[0]} won so rotating')
+                print(f'{entries[0].id} won so rotating')
             else:
                 break
         entries = list(entries)
