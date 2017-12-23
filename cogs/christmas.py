@@ -80,12 +80,12 @@ class Christmas:
         # Green ball (25% of members)
         n2 = math.ceil(len(entries) *.25)
         output = "🍏 Green apple ball\n"
-        output += ', '.join([x.mention for x in entries[n:n + n2 + 1]]) + '\n<:space:390204819979370508>'
+        output += ', '.join([x.mention for x in entries[n:n + n2]]) + '\n<:space:390204819979370508>'
         await ctx.send(output)
 
         # Red ball
         output = "<:redball:390204324329816074> Red ball\n"
-        output += ', '.join([x.mention for x in entries[n + n2 + 1:]]) + '\n<:space:390204819979370508>'
+        output += ', '.join([x.mention for x in entries[n + n2:]]) + '\n<:space:390204819979370508>'
         await ctx.send(output)
         output = 'Check <#393160210166054912> for your reward options and ping a mod with what you want! In the case of gold ball, dm <@211238461682876416>.'
         await ctx.send(output)
