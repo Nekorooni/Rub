@@ -3,6 +3,7 @@ import datetime
 import random
 
 import discord
+import math
 from discord.ext import commands
 
 from cogs.profiles import needs_profile
@@ -39,6 +40,30 @@ class Christmas:
     @commands.has_any_role('Admin')
     async def lotto_entries(self, ctx):
         await ctx.send('\n'.join([str(ctx.guild.get_member(x[0])) or "User left" for x in await self.bot.db.fetch("SELECT user_id FROM lotto_entries")]))
+
+    @lotto.command(name='winners')
+    @commands.has_any_role('Admin')
+    async def lotto_winners(self, ctx):
+        entries = [ctx.guild.get_member(x) for x, in await self.bot.db.fetch("SELECT user_id FROM lotto_entries")]
+        random.shuffle(entries)
+        output = "**Winners of this round:**"
+        await ctx.send(output)
+        # Gold ball (1 member)
+        output = "<:goldball:390204323759652866> Gold ball\n"
+        output += entries[0].mention+'\n<:space:390204819979370508>'
+        await ctx.send(output)
+        # Purple ball (10% of members)
+        n = math.ceil(len(entries)/10)
+        output = "<:purpleball:390204323960848386> Purple ball\n"
+        output += ', '.join([x.mention for x in entries[1:n+1]])+'\n<:space:390204819979370508>'
+        await ctx.send(output)
+        # Red ball (10% of members)
+        output = "<:redball:390204324329816074> Red ball\n"
+        output += ', '.join([x.mention for x in entries[n+1:]])+'\n<:space:390204819979370508>'
+        await ctx.send(output)
+        output = 'Check <#393160210166054912> for your reward options and ping a mod with what you want! In the case of gold ball, dm <@211238461682876416>.'
+        await ctx.send(output)
+
 
     @lotto.command()
     @commands.has_any_role('Admin')
