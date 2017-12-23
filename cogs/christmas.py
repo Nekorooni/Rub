@@ -50,7 +50,7 @@ class Christmas:
 
         random.shuffle(entries)
         for i in range(len(entries)):
-            if entries[0].id in winners:
+            if entries[0] in winners:
                 entries.rotate(-1)
                 print(f'{entries[0]} won so rotating')
             else:
