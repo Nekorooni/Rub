@@ -52,7 +52,6 @@ class Christmas:
         for i in range(len(entries)):
             if entries[0] in winners:
                 entries.rotate(-1)
-                print(f'{entries[0].id} won so rotating')
             else:
                 break
         entries = list(entries)
@@ -116,10 +115,10 @@ class Christmas:
             await msg.edit(embed=em)
             await asyncio.sleep(60)
 
-    @commands.command()
+    @commands.command(aliases=['drg'])
     @commands.has_any_role('Admin')
-    async def droprolegift(self, ctx, channel: discord.TextChannel = None):
-        ch = self.bot.get_channel(channel.id if channel else 370941450361372672)
+    async def dropgift(self, ctx, channel: discord.TextChannel = None):
+        ch = self.bot.get_channel(channel.id if channel else 320567296726663178)
 
         rewards = {
             'srare': [
