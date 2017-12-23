@@ -122,5 +122,18 @@ class Profiles:
             hook = discord.Webhook.from_url('https://canary.discordapp.com/api/webhooks/380881003159486465/hF1rfRXZYReBP2WjgavnrYHQuXKU6joN4aBPsfsaWszqUzFY5I8RmwMyIhGDG2eOH-n5', adapter=discord.AsyncWebhookAdapter(session))
             await hook.send(embeds=embeds)
 
+    @commands.group(aliases=['inv'])
+    @needs_profile()
+    async def inventory(self, ctx, member: discord.Member = None):
+        if member:
+            ctx.profile = await self.get_profile(member.id)
+        items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
+                                       f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
+        if items:
+            await ctx.send('\n'.join([f'{data+" " if data else ""}{name} - {short}' for name, short, data in items]))
+        else:
+            await ctx.send("You don't have anything.")
+
+
 def setup(bot):
     bot.add_cog(Profiles(bot))

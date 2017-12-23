@@ -25,16 +25,6 @@ class Inventory:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(aliases=['inv'])
-    @needs_profile()
-    async def inventory(self, ctx):
-        items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
-                                       f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
-        if items:
-            await ctx.send('\n'.join([f'{data+" " if data else ""}{name} - {short}' for name, short, data in items]))
-        else:
-            await ctx.send("You don't have anything.")
-
     @commands.command()
     @commands.has_role('Admin')
     async def spawnitem(self, ctx, member:discord.Member, *, item_name):
