@@ -55,6 +55,7 @@ class Christmas:
                 print(f'{entries[0]} won so rotating')
             else:
                 break
+        entries = list(entries)
 
         rewards = {
             '<:goldball:390204323759652866> Gold ball': .10,
