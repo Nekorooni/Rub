@@ -101,16 +101,35 @@ class Profiles:
                            description=f'**Lv{p.level}** {p.experience}/{exp_needed(p.level)}xp')
         await ctx.send(embed=em)
 
-    @commands.command()
-    @needs_profile(['coins'])
+    @commands.group()
     async def coins(self, ctx, member: discord.Member = None):
+        if ctx.invoked_subcommand:
+            return
         if member:
             ctx.profile = await self.get_profile(member.id, ['coins'])
             em = discord.Embed(description=f'{member} has {ctx.profile.coins} coins')
         else:
+            ctx.profile = await self.get_profile(ctx.author.id, ['coins'])
             em = discord.Embed(description=f'You have {ctx.profile.coins} coins')
         await ctx.send(embed=em)
-        
+
+    @coins.command()
+    async def give(self, ctx, member: discord.Member, amount: int):
+        ctx.profile = await self.get_profile(member.id, ['coins'])
+        ctx.profile.coins += amount
+        await ctx.profile.save(self.bot.db)
+        await ctx.send(f"Gave {amount} to {member}, they now have {ctx.profile.coins}")
+
+    @coins.command()
+    async def take(self, ctx, member: discord.Member, amount: int):
+        ctx.profile = await self.get_profile(member.id, ['coins'])
+        if ctx.profile.coins >= amount:
+            ctx.profile.coins -= amount
+            await ctx.profile.save(self.bot.db)
+            await ctx.send(f"Took {amount} from {member}, they now have {ctx.profile.coins}")
+        else:
+            await ctx.send(f"{member} would be in debt.")
+
     @commands.command()
     @needs_profile()
     async def inv2(self, ctx):
@@ -130,7 +149,7 @@ class Profiles:
         items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
                                        f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
         if items:
-            await ctx.send('\n'.join([f'{data+" " if data else ""}{name} - {short}' for name, short, data in items]))
+            await ctx.send('\n'.join([f'{data+" " if data else ""}{name}' for name, data in items]))
         else:
             await ctx.send("You don't have anything.")
 
