@@ -114,14 +114,14 @@ class Profiles:
         await ctx.send(embed=em)
 
     @coins.command()
-    async def give(self, ctx, member: discord.Member, amount: int):
+    async def give(self, ctx, member: discord.Member, amount):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         ctx.profile.coins += amount
         await ctx.profile.save(self.bot.db)
         await ctx.send(f"Gave {amount} to {member}, they now have {ctx.profile.coins}")
 
     @coins.command()
-    async def take(self, ctx, member: discord.Member, amount: int):
+    async def take(self, ctx, member: discord.Member, amount):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         if ctx.profile.coins >= amount:
             ctx.profile.coins -= amount
