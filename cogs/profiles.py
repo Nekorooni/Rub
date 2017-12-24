@@ -101,7 +101,7 @@ class Profiles:
                            description=f'**Lv{p.level}** {p.experience}/{exp_needed(p.level)}xp')
         await ctx.send(embed=em)
 
-    @commands.group()
+    @commands.group(invoke_without_command=True)
     async def coins(self, ctx, member: discord.Member = None):
         if ctx.invoked_subcommand is not None:
             return
