@@ -103,7 +103,7 @@ class Profiles:
 
     @commands.group()
     async def coins(self, ctx, member: discord.Member = None):
-        if ctx.invoked_subcommand:
+        if ctx.invoked_subcommand is not None:
             return
         if member:
             ctx.profile = await self.get_profile(member.id, ['coins'])
@@ -114,14 +114,14 @@ class Profiles:
         await ctx.send(embed=em)
 
     @coins.command()
-    async def give(self, ctx, member: discord.Member, amount):
+    async def give(self, ctx, member: discord.Member, amount: int):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         ctx.profile.coins += amount
         await ctx.profile.save(self.bot.db)
         await ctx.send(f"Gave {amount} to {member}, they now have {ctx.profile.coins}")
 
     @coins.command()
-    async def take(self, ctx, member: discord.Member, amount):
+    async def take(self, ctx, member: discord.Member, amount: int):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         if ctx.profile.coins >= amount:
             ctx.profile.coins -= amount
