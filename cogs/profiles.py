@@ -114,6 +114,7 @@ class Profiles:
         await ctx.send(embed=em)
 
     @coins.command()
+    @commands.has_role('Admin')
     async def give(self, ctx, member: discord.Member, amount: int):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         ctx.profile.coins += amount
@@ -121,6 +122,7 @@ class Profiles:
         await ctx.send(f"Gave {amount} to {member}, they now have {ctx.profile.coins}")
 
     @coins.command()
+    @commands.has_role('Admin')
     async def take(self, ctx, member: discord.Member, amount: int):
         ctx.profile = await self.get_profile(member.id, ['coins'])
         if ctx.profile.coins >= amount:
