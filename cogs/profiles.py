@@ -148,7 +148,7 @@ class Profiles:
     async def inventory(self, ctx, member: discord.Member = None):
         if member:
             ctx.profile = await self.get_profile(member.id)
-        items = await ctx.bot.db.fetch(f'SELECT it.name, it.shortdesc, data FROM inventory '
+        items = await ctx.bot.db.fetch(f'SELECT it.name, data FROM inventory '
                                        f'INNER JOIN items it ON item_id=it.id WHERE profile_id={ctx.profile.pid}')
         if items:
             await ctx.send('\n'.join([f'{data+" " if data else ""}{name}' for name, data in items]))
