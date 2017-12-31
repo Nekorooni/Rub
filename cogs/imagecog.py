@@ -31,7 +31,7 @@ class ImageCog:
         # create a ClientSession to be used for downloading avatars
 
     async def get_avatar(self, user: Union[discord.User, discord.Member]) -> bytes:
-        avatar_url = user.avatar_url_as(format="png")
+        avatar_url = user.avatar_url_as(format="png", size=128)
         # generally an avatar will be 1024x1024, but we shouldn't rely on this
 
         async with self.session.get(avatar_url) as response:
