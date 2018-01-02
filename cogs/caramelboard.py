@@ -3,7 +3,7 @@ import discord
 
 
 CARAMEL_CHANNEL = 369821496010604554
-CARAMEL_THRESHOLD = 3
+CARAMEL_THRESHOLD = 4
 
 
 class Caramelboard:
@@ -48,7 +48,7 @@ class Caramelboard:
         for r in msg.reactions:
             if not r.custom_emoji:
                 continue
-            if 'caramel' in r.emoji.name:
+            if r.emoji.id == 361532992499220492:
                 async for user in r.users():
                     if user.id not in u:
                         n += 1
