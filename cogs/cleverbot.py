@@ -63,7 +63,7 @@ class Cleverbot:
     async def on_message(self, msg):
         if msg.author == self.bot.user:
             return
-        if msg.channel.id == 362669211966767104:
+        if msg.channel.id == 362669211966767104 or msg.content.startswith('rubbu '):
             if msg.mentions:
                 return
             if msg.content.startswith('.'):
