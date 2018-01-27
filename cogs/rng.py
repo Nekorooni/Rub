@@ -37,7 +37,6 @@ class Rng:
             await m.add_reaction(re)
         reaction1, user1 = await self.bot.wait_for('reaction_add', check=lambda r, u: u.id == ctx.author.id and any(
             r.emoji == re for re in ['✊', '✋', '✌']))
-        print(reaction1.emoji)
         m = await ctx.send(f'`{ctx.author.name}` 🤜 🤛 `{user.name}`')
         for re in ['✊', '✋', '✌']:
             await m.add_reaction(re)
