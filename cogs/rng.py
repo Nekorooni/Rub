@@ -1,4 +1,5 @@
 import aiohttp
+import re
 from discord.ext import commands
 
 import discord
@@ -58,7 +59,7 @@ class Rng:
     @commands.command(aliases=['pick', 'choice'])
     async def choose(self, ctx, *choices):
         """Picks a random entry from a list."""
-        await ctx.send(random.choice(choices))
+        await ctx.send(re.sub(r'@(everyone|here)', '@\u200b\\1', random.choice(choices)))
 
     @commands.command()
     async def roll(self, ctx, max: int=100):
