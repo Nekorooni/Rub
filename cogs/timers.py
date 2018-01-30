@@ -42,6 +42,7 @@ class Timers:
             while not self.bot.is_closed():
                 qry = f'SELECT id, event, expires, data ' \
                       f'FROM timers ' \
+                      f'WHERE expires < ({datetime.datetime.utcnow()+datetime.timedelta(days=7)}) ' \
                       f'ORDER BY expires LIMIT 1'
                 timer = await self.bot.db.fetchdict(qry)
                 print(timer)
