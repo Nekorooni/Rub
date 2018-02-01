@@ -2,9 +2,13 @@ from discord.ext import commands
 from .utils import time
 import asyncio
 import discord
+import parsedatetime as pdt
 import datetime
 
-
+def get_date(text):
+    cal = pdt.Calendar()
+    time, res = cal.parseDT(text, datetime.datetime.utcnow())
+    return time if res else None
 
 class MemberID(commands.Converter):
     async def convert(self, ctx, argument):
@@ -152,7 +156,7 @@ class Moderation:
         Defaults to 6 hours if you leave the time out.
 
         You can copy the exact time as shown on discord.me as time input, for example:
-        ~bump 4h 21m 54s
+        !bump 4h 21m 54s
         """
         t = get_date(time_till_bump)
         if t:
