@@ -66,8 +66,11 @@ class Timers:
         except Exception as e:
             print(e)
 
-    async def create_timer(self, event, expires, data):
-        data = json.dumps(data)
+    async def create_timer(self, event, expires, data=None):
+        if data:
+            data = json.dumps(data)
+        else:
+            data = []
         await self.bot.db.execute(f"INSERT INTO timers (event, expires, data) "
                                   f"VALUES ('{event}', '{expires}', '{data}')")
 
