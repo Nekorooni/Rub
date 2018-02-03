@@ -42,6 +42,7 @@ class Timers:
             while not self.bot.is_closed():
                 qry = f'SELECT id, event, expires, data ' \
                       f'FROM timers ' \
+                      f'WHERE expires < ("{datetime.datetime.utcnow()+datetime.timedelta(days=7)}") ' \
                       f'ORDER BY expires LIMIT 1'
                 timer = await self.bot.db.fetchdict(qry)
                 print(timer)
@@ -65,8 +66,11 @@ class Timers:
         except Exception as e:
             print(e)
 
-    async def create_timer(self, event, expires, data):
-        data = json.dumps(data)
+    async def create_timer(self, event, expires, data=None):
+        if data:
+            data = json.dumps(data)
+        else:
+            data = []
         await self.bot.db.execute(f"INSERT INTO timers (event, expires, data) "
                                   f"VALUES ('{event}', '{expires}', '{data}')")
 

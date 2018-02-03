@@ -15,7 +15,7 @@ class Helpful:
         """Show someones avatar."""
         if not user:
             user = ctx.author
-        await ctx.send(user.avatar_url)
+        await ctx.send(embed=discord.Embed().set_image(url=user.avatar_url).set_footer(text=str(user)))
 
     @commands.has_permissions(manage_messages=True)
     @commands.group()
