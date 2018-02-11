@@ -86,14 +86,15 @@ class Christmas:
         output = "<:redball:390204324329816074> Red ball\n"
         output += ', '.join([x.mention for x in entries[n + n2:]]) + '\n<:space:390204819979370508>'
         await ctx.send(output)
-        output = 'Check <#393160210166054912> for your reward options and ping a mod with what you want! In the case of gold ball, dm <@211238461682876416>.'
+        output = 'Check <#393875091479592962> for your reward options and ping a mod with what you want! In the case of gold ball, dm <@211238461682876416>.'
         await ctx.send(output)
 
 
     @lotto.command()
     @commands.has_any_role('Admin')
     async def clear(self, ctx):
-        await ctx.send(await self.bot.db.execute('TRUNCATE lotto_entries'))
+        await self.bot.db.execute('TRUNCATE lotto_entries;')
+        await ctx.send('Dun!')
 
     @lotto.command()
     @commands.has_any_role('Admin')
