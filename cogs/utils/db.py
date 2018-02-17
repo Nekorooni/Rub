@@ -14,40 +14,40 @@ class DB:
         try:
             self.pool = await aiomysql.create_pool(host=self.host, port=3306,
                                                    user=self.username, password=self.password,
-                                                   db=self.db, loop=self.loop)
+                                                   db=self.db, loop=self.loop, charset='utf8')
         except Exception as e:
             print("Couldn't connect to database.")
             print(e)
 
-    async def execute(self, qry, assoc=None):
+    async def execute(self, qry, args=None):
         async with self.pool.acquire() as conn:
-            async with conn.cursor(aiomysql.DictCursor if assoc else None) as cur:
-                r = await cur.execute(qry)
+            async with conn.cursor() as cur:
+                r = await cur.execute(qry, args=args)
                 return r, cur.lastrowid
 
-    async def fetch(self, qry, assoc=None):
+    async def fetch(self, qry, args=None):
         async with self.pool.acquire() as conn:
-            async with conn.cursor(aiomysql.DictCursor if assoc else None) as cur:
-                await cur.execute(qry)
+            async with conn.cursor() as cur:
+                await cur.execute(qry, args=args)
                 r = await cur.fetchall()
                 return r
 
-    async def fetchone(self, qry, assoc=None):
+    async def fetchone(self, qry, args=None):
         async with self.pool.acquire() as conn:
-            async with conn.cursor(aiomysql.DictCursor if assoc else None) as cur:
-                await cur.execute(qry)
+            async with conn.cursor() as cur:
+                await cur.execute(qry, args=args)
                 r = await cur.fetchone()
                 return r
 
-    async def fetchdict(self, qry):
+    async def fetchdict(self, qry, args=None):
         async with self.pool.acquire() as conn:
             async with conn.cursor(aiomysql.DictCursor) as cur:
-                await cur.execute(qry)
+                await cur.execute(qry, args=args)
                 return await cur.fetchone()
 
-    async def fetchdicts(self, qry):
+    async def fetchdicts(self, qry, args=None):
         async with self.pool.acquire() as conn:
             async with conn.cursor(aiomysql.DictCursor) as cur:
-                await cur.execute(qry)
+                await cur.execute(qry, args=args)
                 return await cur.fetchall()
 
