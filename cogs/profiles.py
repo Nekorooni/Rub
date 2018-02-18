@@ -64,7 +64,7 @@ class Profiles:
             self.profiles[u_id] = p_id
         if keys:
             s = ', '.join(keys)
-            data = await self.bot.db.fetchone(f'SELECT {s} FROM profiles WHERE id={p_id}', assoc=True)
+            data = await self.bot.db.fetchdict(f'SELECT {s} FROM profiles WHERE id={p_id}')
             return PartialProfile(p_id, **data)
         return PartialProfile(p_id)
 
