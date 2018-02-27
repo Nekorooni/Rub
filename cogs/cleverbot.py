@@ -63,13 +63,15 @@ class Cleverbot:
     async def on_message(self, msg):
         if msg.author == self.bot.user:
             return
-        if msg.channel.id == 362669211966767104 or msg.content.startswith('rubbu '):
+        if msg.channel.id == 362669211966767104 or msg.content.startswith('rubbu ') or msg.content.startswith('jopie '):
             if msg.mentions:
                 return
             if msg.content.startswith('.'):
                 return
             if msg.author.id not in self.sessions:
                 self.sessions[msg.author.id] = CleverWrap(self.bot.config.cleverbot_token, name=msg.author.name)
+            if msg.content.startswith('rubbu ') or msg.content.startswith('jopie '):
+                msg.content = msg.content[6:]
             async with msg.channel.typing():
                 if msg.content:
                     await msg.channel.send(await self.sessions[msg.author.id].say(msg.content))
