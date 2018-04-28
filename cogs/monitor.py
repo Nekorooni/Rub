@@ -22,7 +22,7 @@ class Monitor:
 
     async def on_message_edit(self, before, after):
         if before.content != after.content:
-            await self.log('edit', after.author.id, after.channel.id, after.content)
+            await self.log('edit', before.author.id, before.channel.id, before.content)
 
     async def on_command(self, ctx):
         await self.log('command', ctx.author.id, ctx.channel.id, ctx.message.content)
