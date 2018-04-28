@@ -20,9 +20,12 @@ class Monitor:
         att = '\n'.join(x.url for x in message.attachments)
         await self.log('delete', message.author.id, message.channel.id, message.content, att)
 
+    async def on_message_edit(self, before, after):
+        if before.content != after.content:
+            await self.log('edit', after.author.id, after.channel.id, after.content)
+
     async def on_command(self, ctx):
-        print(ctx.message.content)
-        print(await self.log('command', ctx.author.id, ctx.channel.id, ctx.message.content))
+        await self.log('command', ctx.author.id, ctx.channel.id, ctx.message.content)
 
     # @commands.command()
     # async def deletes(self, ctx, target: DeleteTarget = None):
