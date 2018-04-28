@@ -54,7 +54,7 @@ class Monitor:
 
         def callback(page):
             em = discord.Embed(title=f'Recent deletions from {member}')
-            for u, c, a in rows[page*5:page*5+5]:
+            for c, a in rows[page*5:page*5+5]:
                 em.add_field(name=member.display_name, value=c or '-', inline=False)
             em.set_footer(text=f'Page {page+1}')
             return em
