@@ -15,7 +15,8 @@ class DB:
     async def connect(self):
         try:
             self.pool = await aiomysql.create_pool(host=self.host, user=self.username, password=self.password,
-                                                   db=self.db, loop=self.loop, charset='utf8', use_unicode=True)
+                                                   db=self.db, loop=self.loop, charset='utf8', use_unicode=True,
+                                                   autocommit=True)
         except Exception as e:
             print("Couldn't connect to database.")
             print(e)
