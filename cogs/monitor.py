@@ -52,24 +52,48 @@ class Monitor:
         if not rows:
             return await ctx.send('No deletes found')
 
-        buttons = ['◀', '▶', '⏹']
-
-        def gen_embed(page):
+        def callback(page):
             em = discord.Embed(title=f'Recent deletions from {member}')
-            for c, a in rows[page*5:page*5+5]:
+            for u, c, a in rows[page*5:page*5+5]:
                 em.add_field(name=member.display_name, value=c or '-', inline=False)
             em.set_footer(text=f'Page {page+1}')
             return em
 
+        await self.embed_paginator(ctx, callback)
+
+    @deletes.command(name='in')
+    async def deletes_in(self, ctx, channel: discord.TextChannel):
+        qry = f'SELECT user_id, content, attachments FROM monitorlog WHERE type="delete" AND channel={channel.id} ' \
+              f'ORDER BY id DESC'
+        rows = await self.bot.db.fetch(qry)
+
+        if not rows:
+            return await ctx.send('No deletes found')
+
+        def callback(page):
+            em = discord.Embed(title=f'Recent deletions in {channel}')
+            for u, c, a in rows[page*5:page*5+5]:
+                member = ctx.bot.get_user(u)
+                em.add_field(name=member.display_name if member else 'unknown', value=c or '-', inline=False)
+            em.set_footer(text=f'Page {page+1}')
+            return em
+
+        await self.embed_paginator(ctx, callback)
+
+
+    async def embed_paginator(self, ctx, callback):
+        buttons = ['◀', '▶', '⏹']
         index = 0
 
-        msg = await ctx.send(embed=gen_embed(index))
+        msg = await ctx.send(embed=callback(index))
         for button in buttons:
             await msg.add_reaction(button)
 
         while True:
             try:
-                reaction, user = await self.bot.wait_for('reaction_add', check=lambda r, u: u.id == ctx.author.id and str(r) in buttons)
+                def check(r, u):
+                    return u.id == ctx.author.id and str(r) in buttons
+                reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=120)
             except asyncio.TimeoutError:
                 break
             else:
@@ -78,17 +102,13 @@ class Monitor:
                 if t == 0:
                     if index > 0:
                         index -= 1
-                        await msg.edit(embed=gen_embed(index))
+                        await msg.edit(embed=callback(index))
                 elif t == 1:
                     index += 1
-                    await msg.edit(embed=gen_embed(index))
+                    await msg.edit(embed=callback(index))
                 else:
                     break
         await msg.delete()
-
-    @deletes.command(name='in')
-    async def deletes_in(self, ctx, channel: discord.TextChannel):
-        await ctx.send(channel)
 
 
 def setup(bot):
