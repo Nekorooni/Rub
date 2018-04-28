@@ -12,12 +12,12 @@ class Monitor:
     async def __local_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
-    async def log(self, logtype, author, channel, content, attachments=''):
-        await self.bot.db.execute(f'INSERT INTO `monitorlog` (`type`, `author`, `channel`, `content`, `attachments`) '
-                                  f'VALUES (%s, %s, %s, %s, %s)', (logtype, author, channel, content, attachments))
+    async def log(self, logtype, user_id, channel, content, attachments=''):
+        await self.bot.db.execute(f'INSERT INTO `monitorlog` (`type`, `user_id`, `channel`, `content`, `attachments`) '
+                                  f'VALUES (%s, %s, %s, %s, %s)', (logtype, user_id, channel, content, attachments))
 
     async def on_message_delete(self, message):
-        att = '\n'.join(x.url for x in message.attachments) or 'n'
+        att = '\n'.join(x.url for x in message.attachments)
         await self.log('delete', message.author.id, message.channel.id, message.content, att)
 
     async def on_command(self, ctx):
@@ -42,7 +42,7 @@ class Monitor:
 
     @deletes.command(name='from')
     async def deletes_from(self, ctx, member: discord.Member):
-        qry = f'SELECT content, attachments FROM monitorlog WHERE type="delete" AND author={member.id} ' \
+        qry = f'SELECT content, attachments FROM monitorlog WHERE type="delete" AND user_id={member.id} ' \
               f'ORDER BY id DESC'
         rows = await self.bot.db.fetch(qry)
 
