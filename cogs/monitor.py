@@ -92,7 +92,7 @@ class Monitor:
         while True:
             try:
                 def check(r, u):
-                    return u.id == ctx.author.id and str(r) in buttons
+                    return u.id == ctx.author.id and r.message.id == msg.id and str(r) in buttons
                 reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=120)
             except asyncio.TimeoutError:
                 break
