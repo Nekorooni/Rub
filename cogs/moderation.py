@@ -146,7 +146,7 @@ class Moderation:
         e.add_field(name=f'Joined', value=time.time_ago(member.joined_at), inline=True)
         e.add_field(name=f'Created', value=time.time_ago(member.created_at), inline=True)
         e.add_field(name=f'Nickname', value=member.nick or "None", inline=False)
-        e.add_field(name=f'Roles', value=' '.join([role.mention for role in member.roles[1:]]), inline=False)
+        e.add_field(name=f'Roles', value=' '.join([role.mention for role in member.roles[1:]]) or "None", inline=False)
         await ctx.send(embed=e)
 
     @commands.command(aliases=['bumped'])
