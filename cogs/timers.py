@@ -3,7 +3,7 @@ import json
 
 import discord
 from discord.ext import commands
-from future.backports import datetime
+import datetime
 
 
 class Timer:
