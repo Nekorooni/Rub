@@ -9,27 +9,27 @@ CARAMEL_THRESHOLD = 4
 class Caramelboard:
     """Stuff for the caramelboard"""
 
-    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
-        if 'caramel' not in emoji.name:
+    async def on_raw_reaction_add(self, payload):
+        if 'caramel' not in payload.emoji.name:
             return
-        if channel_id == CARAMEL_CHANNEL:
+        if payload.channel_id == CARAMEL_CHANNEL:
             return
 
-        channel = self.bot.get_channel(channel_id)
-        msg = await channel.get_message(message_id)
+        channel = self.bot.get_channel(payload.channel_id)
+        msg = await channel.get_message(payload.message_id)
         if await self.count_caramels(msg) < CARAMEL_THRESHOLD:
             return
 
-        r = await self.bot.db.fetchone(f'SELECT * FROM `caramelboard` WHERE message_id={message_id}')
+        r = await self.bot.db.fetchone(f'SELECT * FROM `caramelboard` WHERE message_id={payload.message_id}')
         if r:
             pass
         else:
             emb = self.make_embed(msg)
             post = await self.bot.get_channel(CARAMEL_CHANNEL).send(embed=emb)
             await self.bot.db.execute(
-                f'INSERT INTO `caramelboard` (message_id, bot_message_id) VALUES ({message_id}, {post.id})')
+                f'INSERT INTO `caramelboard` (message_id, bot_message_id) VALUES ({payload.message_id}, {post.id})')
 
-    async def on_raw_reaction_remove(self, emoji, message_id, channel_id, user_id):
+    async def on_raw_reaction_remove(self, payload):
         pass
 
     def make_embed(self, msg):
