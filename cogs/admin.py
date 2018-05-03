@@ -11,6 +11,10 @@ import discord
 from discord.ext import commands
 
 
+def cogname(name):
+    return name if name.startswith('cogs.') else f'cogs.{name}'
+
+
 class Admin:
     """Admin-only commands that make the bot dynamic."""
 
@@ -37,35 +41,34 @@ class Admin:
         return f'```py\n{e.text}{"^":>{e.offset}}\n{e.__class__.__name__}: {e}```'
 
     @commands.command(hidden=True)
-    async def load(self, ctx, *, module):
-        """Loads a module."""
+    async def load(self, ctx, *, cog: cogname):
+        """Loads a cog."""
         try:
-            self.bot.load_extension(module if module.startswith('cogs.') else f'cogs.{module}')
+            self.bot.load_extension(cog)
         except Exception as e:
             await ctx.send(f'```py\n{traceback.format_exc()}\n```')
         else:
-            await ctx.send('\N{OK HAND SIGN}')
+            await ctx.send(embed=discord.Embed(title=f'Loaded {cog}', color=0x54d154))
 
     @commands.command(hidden=True)
-    async def unload(self, ctx, *, module):
-        """Unloads a module."""
-        try:
-            self.bot.unload_extension(module if module.startswith('cogs.') else f'cogs.{module}')
-        except Exception as e:
-            await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+    async def unload(self, ctx, *, cog: cogname):
+        """Unloads a cog."""
+        if self.bot.extensions.get(cogname):
+            self.bot.unload_extension(cog)
+            await ctx.send(embed=discord.Embed(title=f'Unloaded {cog}', color=0x54d154))
         else:
-            await ctx.send('\N{OK HAND SIGN}')
+            await ctx.send(embed=discord.Embed(title="That cog wasn't loaded", color=0xd15454))
 
     @commands.command(name='reload', hidden=True)
-    async def _reload(self, ctx, *, module):
-        """Reloads a module."""
+    async def _reload(self, ctx, *,  cog: cogname):
+        """Reloads a cog."""
         try:
-            self.bot.unload_extension(module if module.startswith('cogs.') else f'cogs.{module}')
-            self.bot.load_extension(module if module.startswith('cogs.') else f'cogs.{module}')
+            self.bot.unload_extension(cog)
+            self.bot.load_extension(cog)
         except Exception as e:
             await ctx.send(f'```py\n{traceback.format_exc()}\n```')
         else:
-            await ctx.send('\N{OK HAND SIGN}')
+            await ctx.send(embed=discord.Embed(title=f'Reloaded {cog}', color=0x54d154))
 
     @commands.command(hidden=True, name='eval')
     async def _eval(self, ctx, *, body: str):
@@ -105,24 +108,19 @@ class Admin:
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
         else:
             value = stdout.getvalue()
-            try:
-                await ctx.message.add_reaction('\u2705')
-            except:
-                pass
 
-            if ret is None:
-                if value:
-                    fmt=f'```py\n{value}\n```\n*Took {dt:.2f} ms*'
-                else:
-                    fmt=f'*Took {dt:.2f} ms*'
-            else:
-                self._last_result = ret
-                fmt= f'```py\n{value}{ret}\n```\n*Took {dt:.2f} ms*'
-            if len(fmt)>2000:
-                fp = io.BytesIO(fmt.encode('utf-8'))
+            if len(value) > 1900:
+                fp = io.BytesIO(value.encode('utf-8'))
                 await ctx.send('Output too large', file=discord.File(fp, 'output.txt'))
             else:
-                await ctx.send(fmt)
+                output = '```py\n'
+                if ret:
+                    self._last_result = ret
+                    output += f'{value}{ret}'
+                else:
+                    output += f'{value or "ok"}'
+                output += '```'
+                await ctx.send(output)
 
     @commands.command(pass_context=True, hidden=True)
     async def repl(self, ctx):
@@ -218,14 +216,6 @@ class Admin:
         """Run some SQL."""
         await ctx.send(await self.bot.db.fetch(query))
 
-    @commands.command(hidden=True)
-    async def do(self, ctx, times: int, *, command):
-        """Repeats a command a specified number of times."""
-        msg = copy.copy(ctx.message)
-        msg.content = command
-        for i in range(times):
-            await self.bot.process_commands(msg)
-            await asyncio.sleep(1)
 
 def setup(bot):
     bot.add_cog(Admin(bot))
