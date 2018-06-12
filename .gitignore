@@ -5,6 +5,4 @@ data/*
 *.pyc
 *.log
 
-config.py
-
 ffmpeg.exe
