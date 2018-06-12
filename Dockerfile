@@ -1,4 +1,4 @@
-FROM python:3.6.5-stretch
+FROM gorialis/alpine-rewrite-minimal
 
 WORKDIR /usr/src/app
 
