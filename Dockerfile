@@ -1,4 +1,4 @@
-FROM gorialis:alpine-rewrite-minimal
+FROM gorialis/discord.py:alpine-rewrite-minimal
 
 WORKDIR /usr/src/app
 
