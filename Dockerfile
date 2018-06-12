@@ -1,4 +1,4 @@
-FROM gorialis/alpine-rewrite-minimal
+FROM gorialis:alpine-rewrite-minimal
 
 WORKDIR /usr/src/app
 
