@@ -29,6 +29,7 @@ class Timer:
     def __repr__(self):
         return f'<Timer expires={self.expires} event={self.event}>'
 
+
 class Timers:
     """Setting timers"""
     def __init__(self, bot):
@@ -82,24 +83,7 @@ class Timers:
         self.bot.dispatch(f'{timer.event}_event', *timer.data)
         await self.bot.db.execute(f'DELETE FROM timers WHERE id={timer.id}')
         print(f'timer finished and deleted')
-
-    @commands.command()
-    async def testreminder(self, ctx, seconds: int, *, message):
-        due = datetime.datetime.utcnow()+datetime.timedelta(seconds=seconds)
-        await self.create_timer('reminder', due, [ctx.channel.id, message])
-
-    async def on_testevent_timer_complete(self, channel_id, msg):
-        ch = self.bot.get_channel(channel_id)
-        await ch.send(msg)
-
-
-
-    async def on_delayed_delete_timer_complete(self, channel_id, message_id):
-        try:
-            m = await self.bot.get_channel(channel_id).get_message(message_id)
-            await m.delete()
-        except:
-            pass
+ 
 
 def setup(bot):
     bot.add_cog(Timers(bot))
