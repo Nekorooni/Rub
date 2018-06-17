@@ -35,7 +35,7 @@ def signature(cmd):
         else:
             result.append('<%s>' % name)
 
-    add = "\n\nAliases:\n"+', '.join(f'  {alias}' for alias in cmd.aliases) if len(cmd.aliases) > 0 else ''
+    add = "\n\n<Aliases>\n"+', '.join(f'  {alias}' for alias in cmd.aliases) if len(cmd.aliases) > 0 else ''
 
     return ' '.join(result)+add
 
@@ -75,7 +75,7 @@ class RubHelpFormatter(HelpFormatter):
 
             # <signature portion>
             signature = self.get_command_signature()
-            self._paginator.add_line(f"Usage:")
+            self._paginator.add_line(f"<Usage>")
             self._paginator.add_line(f"{signature}", empty=True)
 
             # end it here if it's just a regular command
@@ -89,7 +89,7 @@ class RubHelpFormatter(HelpFormatter):
             cog = tup[1].cog_name
             # we insert the zero width space there to give it approximate
             # last place sorting position.
-            return f' <{cog}>' if cog is not None else '<Other>'
+            return f'<{cog}>' if cog is not None else '<Other>'
 
         filtered = yield from self.filter_command_list()
         if self.is_bot():
