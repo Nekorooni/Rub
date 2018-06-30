@@ -1,10 +1,10 @@
 import os
 
-token = os.getenv('RUB_TOKEN')
+token = os.getenv('TOKEN')
 
-prefix = ['!!', '``']
+prefix = ['rub pls ']
 
-cogs = os.getenv('RUB_COGS', 'cogs.admin').split()
+cogs = ['cogs.admin', 'cogs.manage', 'cogs.profiles', 'cogs.economy']
 
 db_host = os.getenv('MYSQL_HOST', '127.0.0.1')
 db_user = os.getenv('MYSQL_USER', 'root')
