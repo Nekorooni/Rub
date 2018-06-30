@@ -100,9 +100,7 @@ class Admin:
         try:
             with redirect_stdout(stdout):
                 async with ctx.typing():
-                    start = time.perf_counter()
                     ret = await func()
-                    dt = (time.perf_counter() - start) * 1000.0
         except Exception as e:
             value = stdout.getvalue()
             await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
@@ -113,14 +111,12 @@ class Admin:
                 fp = io.BytesIO(value.encode('utf-8'))
                 await ctx.send('Output too large', file=discord.File(fp, 'output.txt'))
             else:
-                output = '```py\n'
+                output = f'```py\n{value}'
                 if ret:
                     self._last_result = ret
-                    output += f'{value}{ret}'
-                else:
-                    output += f'{value or "ok"}'
+                    output += f'{ret}'
                 output += '```'
-                await ctx.send(output)
+                await ctx.send(output if value or ret else 'ok')
 
     @commands.command(pass_context=True, hidden=True)
     async def repl(self, ctx):
