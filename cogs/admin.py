@@ -212,6 +212,14 @@ class Admin:
         """Run some SQL."""
         await ctx.send(await self.bot.db.fetch(query))
 
+    @commands.command(hidden=True)
+    async def redis(self, ctx, *args):
+        try:
+            output = await ctx.redis.execute(*args)
+            await ctx.send(output or "None")
+        except Exception as e:
+            await ctx.send(e)
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))
