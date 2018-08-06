@@ -71,6 +71,28 @@ class Manage:
         """Set Rub's 'watching' status."""
         await self.bot.change_presence(game=discord.Game(name=status, type=3))
 
+    @commands.group(hidden=True, invoke_without_subcommand=True)
+    async def prefix(self, ctx):
+        if ctx.invoked_subcommand is not None:
+            return
+        prefixes = await self.bot.redis.lrange(f'prefix:{ctx.guild.id}', 0, -1)
+        if prefixes:
+            await ctx.send(', '.join(prefixes))
+        else:
+            await ctx.send('No custom prefixes set for this server')
+
+    @commands.guild_only()
+    @prefix.command(name="add", hidden=True)
+    async def prefix_add(self, ctx, *, prefix):
+        if prefix in self.bot.prefixes[ctx.guild.id]:
+            return await ctx.send("That's already a prefix for this guild")
+
+        if await self.bot.redis.rpush(f'prefix:{ctx.guild.id}', prefix):
+            self.bot.prefixes[ctx.guild.id] = await self.bot.redis.lrange(f'prefix:{ctx.guild.id}', 0, -1)
+            await ctx.send("Added prefix")
+            discord.utils
+        else:
+            await ctx.send("Failed to add prefix")
 
 def setup(bot):
     bot.add_cog(Manage(bot))
