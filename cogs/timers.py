@@ -7,14 +7,15 @@ import datetime
 
 
 class Timer:
-    __slots__ = ('id', 'event', 'expires', 'data')
+    __slots__ = ('id', 'event', 'expires', 'args', 'kwargs')
 
     def __init__(self, *, record):
         self.id = record['id']
 
         self.event = record['event']
         self.expires = record['expires']
-        self.data = json.loads(record['data'])
+        self.args = json.loads(record['args'])
+        self.kwargs = json.loads(record['kwargs'])
 
     @classmethod
     def temporary(cls, *, event, expires, data):
@@ -22,7 +23,8 @@ class Timer:
             'id': None,
             'event': event,
             'expires': expires,
-            'data': ['no']
+            'args': ['no'],
+            'kwargs': {}
         }
         return cls(record=pseudo)
 
@@ -41,7 +43,7 @@ class Timers:
         await self.bot.wait_until_ready()
         try:
             while not self.bot.is_closed():
-                qry = f'SELECT id, event, expires, data ' \
+                qry = f'SELECT id, event, expires, args, kwargs ' \
                       f'FROM timers ' \
                       f'WHERE expires < ("{datetime.datetime.utcnow()+datetime.timedelta(days=7)}") ' \
                       f'ORDER BY expires LIMIT 1'
@@ -67,23 +69,21 @@ class Timers:
         except Exception as e:
             print(e)
 
-    async def create_timer(self, event, expires, data=None):
-        if data:
-            data = json.dumps(data)
-        else:
-            data = []
-        await self.bot.db.execute(f"INSERT INTO timers (event, expires, data) "
-                                  f"VALUES ('{event}', '{expires}', '{data}')")
+    async def create_timer(self, event, expires, args=None, kwargs=None):
+        args = json.dumps(args) if args else '[]'
+        kwargs = json.dumps(kwargs) if kwargs else '{}'
+        await self.bot.db.execute(f"INSERT INTO timers (event, expires, args, kwargs) "
+                                  f"VALUES (%s, %s, %s, %s)", (event, expires, args, kwargs))
 
         if self._current_timer is None or self._current_timer and expires < self._current_timer.expires:
             self._task.cancel()
             self._task = self.bot.loop.create_task(self.remind_check_loop())
 
     async def finish_timer(self, timer):
-        self.bot.dispatch(f'{timer.event}_event', *timer.data)
+        self.bot.dispatch(f'{timer.event}_event', *timer.args, **timer.kwargs)
         await self.bot.db.execute(f'DELETE FROM timers WHERE id={timer.id}')
         print(f'timer finished and deleted')
- 
+
 
 def setup(bot):
     bot.add_cog(Timers(bot))
