@@ -87,19 +87,48 @@ class Moderation:
             await ctx.message.add_reaction('tsumikuBlank:364178887917436933')
 
     @commands.command()
+    @commands.has_permissions(ban_members=True)
+    async def massban(self, ctx, *members: MemberID):
+        permissions = ctx.channel.permissions_for(ctx.author)
+        if getattr(permissions, 'ban_members', None):
+            for member in members:
+                try:
+                    await ctx.guild.ban(discord.Object(id=member))
+                    member = await self.bot.get_user_info(member)
+                    await ctx.send(f'Banned {member}!')
+                except Exception as e:
+                    await ctx.send(e)
+        else:
+            ch = self.bot.get_channel(STAFF_CHANNEL)
+            await ch.send(f"<@&293008190843387911> {ctx.author.mention} requests mass banning {' '.join(members)}.")
+
+    @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def block(self, ctx, member: discord.Member, minutes: int=5):
-        await member.add_roles(discord.utils.get(ctx.guild.roles, name='Block desu'))
-        await self.timers.create_timer('unblock', datetime.datetime.utcnow()+datetime.timedelta(minutes=minutes),
+    async def block(self, ctx, member: discord.Member, minutes: int = 5):
+        await member.add_roles(discord.utils.get(ctx.guild.roles, name='Block desu'),
+                               reason=f"Blocked for {minutes} minutes")
+        await self.timers.create_timer('unblock', datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes),
                                        [ctx.guild.id, member.id])
+        await ctx.message.add_reaction('hqcaramel:361532992499220492')
 
     async def on_unblock_event(self, guild_id, user_id):
         guild = self.bot.get_guild(guild_id)
         member = guild.get_member(user_id)
         await member.remove_roles(discord.utils.get(guild.roles, name='Block desu'))
 
-    async def on_unmute_event(self, user_id):
-        pass
+    @commands.command()
+    @commands.has_permissions(kick_members=True)
+    async def mute(self, ctx, member: discord.Member, minutes: int = 5):
+        await member.add_roles(discord.utils.get(ctx.guild.roles, name='Mute'),
+                               reason=f"Muted for {minutes} minutes")
+        await self.timers.create_timer('unmute', datetime.datetime.utcnow() + datetime.timedelta(minutes=minutes),
+                                       [ctx.guild.id, member.id])
+        await ctx.message.add_reaction('hqcaramel:361532992499220492')
+
+    async def on_unmute_event(self, guild_id, user_id):
+        guild = self.bot.get_guild(guild_id)
+        member = guild.get_member(user_id)
+        await member.remove_roles(discord.utils.get(guild.roles, name='Mute'))
 
     @commands.command(aliases=['finduser'])
     @commands.guild_only()
@@ -161,16 +190,64 @@ class Moderation:
         t = get_date(time_till_bump)
         if t:
             await self.timers.create_timer('bumpreminder', t)
-            await ctx.send(f'Bump reminder set for {t} (UTC) <a:twitch:406319471272263681>')
+            await ctx.send(f'Bump reminder set for {t} (UTC) <a:anzu2:393962410119135232>')
         else:
             await ctx.send(f'Please supply a better time format.')
 
     async def on_bumpreminder_event(self):
-        ch = self.bot.get_channel(370941450361372672)
+        ch = self.bot.get_channel(462824492247285762)
         e = discord.Embed(title="Server can be bumper", colour=discord.Colour.purple(),
-                          description=f'Click [here](https://discord.me/server/bump-server/48294) for the bump page!')
+                          description=f'Click [here](https://discord.me/server/bump-servers/48294) for the bump page!')
         e.timestamp = datetime.datetime.utcnow()
         await ch.send(embed=e)
+
+    @commands.group(invoke_without_command=True, aliases=['purge'])
+    @commands.has_permissions(manage_messages=True)
+    async def clear(self, ctx, amount: int = 10):
+        """Clear messages in a channel"""
+        amount = min(amount, 50)
+        messages = await ctx.channel.history(limit=amount+1).flatten()
+        await ctx.channel.delete_messages(messages)
+        await ctx.send(f'Deleted {len(messages)} messages', delete_after=4)
+
+    @clear.command(name="member", aliases=['user'])
+    @commands.has_permissions(manage_messages=True)
+    async def clear_member(self, ctx, member: discord.Member, amount: int = 10):
+        """Clear messages from a specific user"""
+        messages = await ctx.channel.history(limit=amount+1).filter(lambda m: m.author.id==member.id).flatten()
+
+        await ctx.channel.delete_messages(messages)
+        await ctx.send(f'Deleted {len(messages)} messages', delete_after=4)
+
+    @clear.command(name="nonimage", aliases=['text'])
+    @commands.has_permissions(manage_messages=True)
+    async def clear_nonimage(self, ctx, amount: int = 10):
+        """Clear messages without attachments"""
+        def check(message):
+            if message.embeds:
+                data = message.embeds[0]
+                if data.type == 'image':
+                    return False
+                if data.type == 'rich':
+                    return False
+
+            if message.attachments:
+                return False
+            return True
+
+        messages = await ctx.channel.history(limit=amount+1).filter(check).flatten()
+
+        await ctx.channel.delete_messages(messages)
+        await ctx.send(f'Deleted {len(messages)} messages', delete_after=4)
+
+    @clear.command(name="bot")
+    @commands.has_permissions(manage_messages=True)
+    async def clear_bot(self, ctx, amount: int = 10):
+        """Clear bot messages"""
+        messages = await ctx.channel.history(limit=amount+1).filter(lambda m: m.author.bot).flatten()
+
+        await ctx.channel.delete_messages(messages)
+        await ctx.send(f'Deleted {len(messages)} messages', delete_after=4)
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
