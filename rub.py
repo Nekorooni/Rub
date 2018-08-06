@@ -1,5 +1,6 @@
 import datetime
 import sys
+import os
 import traceback
 
 import discord
@@ -32,7 +33,7 @@ class Rub(commands.Bot):
         self.prefixes = {}
 
     def load_cogs(self):
-        for cog in config.cogs:
+        for cog in os.getenv('BASE_COGS').split():
             try:
                 self.load_extension(cog)
             except Exception as e:
