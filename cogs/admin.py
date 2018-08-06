@@ -53,11 +53,11 @@ class Admin:
     @commands.command(hidden=True)
     async def unload(self, ctx, *, cog: cogname):
         """Unloads a cog."""
-        if self.bot.extensions.get(cogname):
+        if cog in self.bot.extensions:
             self.bot.unload_extension(cog)
             await ctx.send(embed=discord.Embed(title=f'Unloaded {cog}', color=0x54d154))
         else:
-            await ctx.send(embed=discord.Embed(title="That cog wasn't loaded", color=0xd15454))
+            await ctx.send(embed=discord.Embed(title=f"The cog {cog} wasn't loaded", color=0xd15454))
 
     @commands.command(name='reload', hidden=True)
     async def _reload(self, ctx, *,  cog: cogname):
