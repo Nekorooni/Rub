@@ -1,0 +1,8 @@
+.idea/*
+
+rub-env/*
+data/*
+*.pyc
+*.log
+
+ffmpeg.exe
