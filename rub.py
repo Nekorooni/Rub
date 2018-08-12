@@ -15,8 +15,8 @@ from cogs.utils.helpformatter import RubHelpFormatter
 desc = 'A bot for rubs'
 
 async def get_pre(bot, message):
-    if message.guild.id not in bot.prefixes:
-        bot.prefixes[message.guild.id] = await bot.redis.lrange(f'prefix:{message.guild.id}',0 , -1)
+    if message.guild and message.guild.id not in bot.prefixes:
+        bot.prefixes[message.guild.id] = await bot.redis.lrange(f'prefix:{message.guild.id}',0 , -1, encoding='utf8')
     return config.prefix + bot.prefixes[message.guild.id]
 
 class Rub(commands.Bot):
