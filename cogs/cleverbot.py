@@ -1,3 +1,4 @@
+import os
 import aiohttp
 from discord.ext import commands
 
@@ -69,7 +70,7 @@ class Cleverbot:
             if msg.content.startswith('.'):
                 return
             if msg.author.id not in self.sessions:
-                self.sessions[msg.author.id] = CleverWrap(self.bot.config.cleverbot_token, name=msg.author.name)
+                self.sessions[msg.author.id] = CleverWrap(os.getenv("CLEVERBOT_TOKEN"), name=msg.author.name)
             if msg.content.startswith('rubbu ') or msg.content.startswith('jopie '):
                 msg.content = msg.content[6:]
             async with msg.channel.typing():
